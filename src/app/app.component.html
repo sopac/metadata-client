@@ -1,0 +1,236 @@
+<div style="text-align:center; background-image: linear-gradient(270deg,#2bc0ec,#1b81d7); color: #fff; padding: 1px;">
+  <h1 style="font-size: 36px">
+    Geospatial Metadata Repository
+  </h1>
+  <p style="margin-top: -20px;">
+    OGC Catalogue Service Client Implementation In Angular 4
+  </p>
+</div>
+
+<div align="center">
+  <img align="center" width="300px" src="assets/spc.png">
+</div>
+
+
+<div style="text-align:justify; background-color: #1b81d7; color: #fff; ">
+  <p style="margin-left: 20px; margin-right: 20px;">
+    <br/>
+    There are <b><u>{{count.number}}</u></b> metadata records currently available in this system for browsing and
+    searching, however please note that this listing is <b>incomplete</b>, and is in no
+    way reflective of the entire geospatial data, consisting of approx 81,000 layers, the
+    Geoscience Division holds on behalf of it's member countries in the Pacific region. While care has been taken in the
+    collection, analysis, and compilation of the data, it is supplied on the condition that the Geoscience Division
+    (formerly known as SOPAC) shall not be liable for any loss or injury whatsoever arising from the use of the data.
+    Additionally, you should not solely rely on this information when making a commercial decision.
+    For public datasets, refer to the <a target="_blank" style="color: white"
+                                         href="http://www.pacgeo.org"><b>PacGeo</b></a> SDI platform,
+    and for information on accessing restricted datasets email <a style="color: white"
+                                                                  href="mailto:geodatarequest@spc.int"><b>geodatarequest@spc.int</b></a>
+    <br/><br/>
+  </p>
+</div>
+
+<div align="center">
+  <input type="text" style="width: 400px" placeholder="Search Records..." pInputText [(ngModel)]="query"
+         value="{{query}}"/>
+  <button pButton type="button" (click)="doSearch(query)" label="Search"></button>
+  {{searchCount}}
+</div>
+
+<br/>
+
+
+<p-panel #panelCountry id="panelCountry" header="Filter by Country" [toggleable]="true">
+  <div class="ui-g">
+    <div class="ui-g-2" style="text-align: center" *ngFor="let country of countries">
+      <a href="#" (click)="getMetadataByCountry(country.code)" style="text-decoration: none;">
+        <p-panel>
+          <p-header>
+            <b>{{country.name}}</b>
+          </p-header>
+          <img width="100px" height="50px" src="assets/flags/{{country.code.toLowerCase()}}.png"/>
+          <p-footer>
+            <div style="text-align: center !important;">
+              {{country.count}}
+            </div>
+          </p-footer>
+        </p-panel>
+      </a>
+    </div>
+  </div>
+</p-panel>
+
+<br/>
+
+<p-panel #panelYear id="panelYear" header="Filter by Year" [collapsed]="true" [toggleable]="true">
+  <div class="ui-g">
+    <div class="ui-g-1" align="center" *ngFor="let y of years">
+
+      <a (click)="getMetadataByYear(y.year)" style="color: #1b81d7" href="#">{{y.year}}</a>
+      <br/>
+      <span style="font-size: 8px">
+      ({{y.count}})
+        </span>
+
+    </div>
+  </div>
+</p-panel>
+
+<br/>
+
+<p-panel #panelSpecial id="panelSpecial" header="Specialised Metadata" [collapsed]="false" [toggleable]="true">
+  <div class="ui-g" style="background-color: lightblue">
+    <div class="ui-g-4" align="center">
+      <a style="color: darkblue; font-weight: bold;" target="_blank" href="http://www.pacgeo.org/prni">Pacific Regional
+        Navigation Initiative</a>
+      <br/>
+      UK-IHO MEDIN: Marine Environmental Data<br/>and Information Network
+    </div>
+    <div class="ui-g-4" align="center">
+      <a style="color: darkblue; font-weight: bold;" target="_blank" href="http://www.pacgeo.org/maritimeboundaries">Pacific
+        Maritime Boundaries</a>
+      <br/>
+      IHO S-121 Maritime Boundries and Limits<br/>Data Exchange
+    </div>
+    <div class="ui-g-4" align="center">
+      <a style="color: darkblue; font-weight: bold;" target="_blank" href="http://services.gsd.spc.int/rmmd">Pacific
+        Deep Sea Minerals</a>
+      <br/>
+      ISO 19139 Geographic Information<br/>Metadata Schema
+    </div>
+  </div>
+</p-panel>
+<br/>
+
+<p-dataScroller [value]="metadataList" [rows]="10">
+  <p-header><b><u>Metadata Listing</u></b>
+    <br/>Number Of Records : {{metadataListCount}}
+    <br/>Filter : {{filter}}
+    <br/>
+    Sort By <a href="#" (click)="sortMetadata('title')">Title</a> | <a href="#" (click)="sortMetadata('country')">Country</a>
+    | <a href="#" (click)="sortMetadata('year')">Year</a>
+  </p-header>
+  <ng-template let-m pTemplate="item">
+    <div class="ui-grid ui-grid-responsive ui-fluid">
+      <br/>
+      <div class="ui-grid-row">
+        <div class="ui-grid-col-1"></div>
+        <div class="ui-grid-col-7"><a style="color: blue; text-decoration: none;" (click)="selectMetadata(m)" href="#">{{m.title}}</a>
+        </div>
+        <div class="ui-grid-col-2">{{m.country}}</div>
+        <div class="ui-grid-col-2">{{m.period.substring(0,4)}}</div>
+      </div>
+
+    </div>
+  </ng-template>
+</p-dataScroller>
+
+
+<p-dialog header="Metadata Details" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true"
+          width="1200" (onAfterHide)="onDialogHide()">
+  <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="selMetadata">
+    <p style="text-align: center; font-weight: bold;">{{selMetadata.title}}</p>
+    <table style="border-spacing: 10px;">
+      <colgroup>
+        <col style="background-color: #1b81d7; text-align: center; padding: 10px;">
+        <col style="text-align: justify;">
+      </colgroup>
+      <tr>
+        <td width="200px" style="color: white; text-align: center; padding: 10px;">Abstract</td>
+        <td style="text-align: justify">{{selMetadata.abstractText}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Purpose</td>
+        <td>{{selMetadata.purpose}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Description</td>
+        <td>{{selMetadata.description}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Country</td>
+        <td>{{selMetadata.country}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Data Quality</td>
+        <td>{{selMetadata.dataQuality}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Reference System</td>
+        <td>{{selMetadata.referenceSystem}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Period</td>
+        <td>{{selMetadata.period}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Statement</td>
+        <td>{{selMetadata.statement}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Supplemental Information</td>
+        <td>{{selMetadata.supplementalInformation}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Public Files</td>
+        <td>{{selMetadata.publicFiles}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Personnel</td>
+        <td>{{selMetadata.personnelName}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Personnel Designation</td>
+        <td>{{selMetadata.personnelDesignation}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Bounding Latitude North</td>
+        <td>{{selMetadata.boundingNorth}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Bounding Latitude South</td>
+        <td>{{selMetadata.boundingSouth}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Bounding Longitude East</td>
+        <td>{{selMetadata.boundingEast}}</td>
+      </tr>
+      <tr>
+        <td style="color: white; text-align: center; padding: 5px;">Bounding Longitude West</td>
+        <td>{{selMetadata.boundingWest}}</td>
+      </tr>
+      <tr>
+        <td style="background-color: white !important;"></td>
+        <td align="right">
+
+          <div align="right">
+            <a target="_blank" href="assets/bbox/{{selMetadata.id}}.html">
+              <button style="width: 180px; background-color: red;" pButton type="button" label="Bounding Box"></button>
+            </a>
+
+            <a target="_blank" href="assets/xml/{{selMetadata.xml}}">
+              <button style="width: 180px; background-color: red;" pButton type="button" label="ISO 19319"></button>
+            </a>
+          </div>
+
+        </td>
+      </tr>
+
+
+    </table>
+
+  </div>
+</p-dialog>
+
+
+<div align="center">
+  <br/>
+  <button pButton type="button" (click)="clearList()" label="Clear"></button>
+</div>
+
+<br/><br/><br/>
+<div style="text-align:center; background-image: linear-gradient(270deg,#2bc0ec,#1b81d7); color: #fff; padding: 1px;">
+  <p>
+    &copy;2017 Geoscience Division, Pacific Community (SPC)
+  </p>
+</div>
