@@ -130,11 +130,25 @@
           width="1200" (onAfterHide)="onDialogHide()">
   <div class="ui-grid ui-grid-responsive ui-fluid" *ngIf="selMetadata">
     <p style="text-align: center; font-weight: bold;">{{selMetadata.title}}</p>
+    <hr/>
     <table style="border-spacing: 10px;">
       <colgroup>
         <col style="background-color: #1b81d7; text-align: center; padding: 10px;">
         <col style="text-align: justify;">
       </colgroup>
+      <tr>
+        <td width="200px" style="background-color: white !important;"></td>
+        <td align="right">
+          <div align="right">
+            <a target="_blank" href="assets/bbox/{{selMetadata.id}}.html">
+              <button style="width: 180px; background-color: red;" pButton type="button" label="Bounding Box"></button>
+            </a>
+            <a target="_blank" href="assets/xml/{{selMetadata.xml}}">
+              <button style="width: 180px; background-color: red;" pButton type="button" label="ISO 19319"></button>
+            </a>
+          </div>
+        </td>
+      </tr>
       <tr>
         <td width="200px" style="color: white; text-align: center; padding: 10px;">Abstract</td>
         <td style="text-align: justify">{{selMetadata.abstractText}}</td>
@@ -199,22 +213,6 @@
         <td style="color: white; text-align: center; padding: 5px;">Bounding Longitude West</td>
         <td>{{selMetadata.boundingWest}}</td>
       </tr>
-      <tr>
-        <td style="background-color: white !important;"></td>
-        <td align="right">
-
-          <div align="right">
-            <a target="_blank" href="assets/bbox/{{selMetadata.id}}.html">
-              <button style="width: 180px; background-color: red;" pButton type="button" label="Bounding Box"></button>
-            </a>
-
-            <a target="_blank" href="assets/xml/{{selMetadata.xml}}">
-              <button style="width: 180px; background-color: red;" pButton type="button" label="ISO 19319"></button>
-            </a>
-          </div>
-
-        </td>
-      </tr>
 
 
     </table>
@@ -231,6 +229,6 @@
 <br/><br/><br/>
 <div style="text-align:center; background-image: linear-gradient(270deg,#2bc0ec,#1b81d7); color: #fff; padding: 1px;">
   <p>
-    &copy;2017 Geoscience Division, Pacific Community (SPC)
+    &copy;2017 Geoscience, Energy and Maritime Division, Pacific Community (SPC)
   </p>
 </div>
